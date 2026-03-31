@@ -1,0 +1,6 @@
+@ApiScraperPcel_HostAddress = http://localhost:5223
+
+GET {{ApiScraperPcel_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
