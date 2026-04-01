@@ -41,8 +41,7 @@ app.MapGet("/api/productos", async (AppDbContext db) =>
 
 app.MapPost("/api/scrape", async (AppDbContext db) =>
 {
-    string url = "https://www.pcel.com/laptops/HP-AJ1X0ATCUSTOM16512-Laptop-HP-255-G10-Procesador-AMD-Ryzen-5-7530U-hasta-4-5-GHz-Memoria-de-16GB-DDR4-SSD-de-512GB-Pantalla-de-15-6-LED-Video-Radeon-Graphics-S-O-Window-542792"; 
-
+string url = "https://www.pcel.com/Apple-Z1HN0E-A-Macbook-Air-Procesador-Apple-M2-Memoria-de-24GB-SSD-de-512GB-Pantalla-de-13-6-Retina-S-O-MacOS-Sequoia-550025";
     using HttpClient client = new HttpClient();
     client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
 
