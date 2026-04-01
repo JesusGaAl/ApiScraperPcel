@@ -49,12 +49,12 @@ app.MapPost("/api/scrape", async (AppDbContext db) =>
         document.LoadHtml(html);
 
         // Extraer el Nombre (h1)
-        var titleNode = document.DocumentNode.SelectSingleNode("//h1");
-        string nombreExtraido = titleNode != null ? titleNode.InnerText.Trim() : "Producto Desconocido";
+// Extraer el Nombre (h1 o h3) con TU XPATH
+        var titleNode = document.DocumentNode.SelectSingleNode("/html/body/div[2]/div[2]/div[2]/div/div[1]/div/div/h3");
+        string nombreExtraido = titleNode != null ? titleNode.InnerText.Trim() : "Producto Desconocido";        string nombreExtraido = titleNode != null ? titleNode.InnerText.Trim() : "Producto Desconocido";
 
         // Extraer el Precio con TU XPATH
-        var priceNode = document.DocumentNode.SelectSingleNode("/html/body/div[2]/div[2]/div[2]/div/div[4]/div[2]/div/div/div[1]/div[1]/span"); 
-        
+var priceNode = document.DocumentNode.SelectSingleNode("/html/body/div[2]/div[2]/div[2]/div/div[4]/div[2]/div/div/div[1]/div[1]/strong");        
         string precioExtraido = "Precio no encontrado";
         if (priceNode != null)
         {
