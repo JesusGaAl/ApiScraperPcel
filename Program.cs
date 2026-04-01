@@ -22,20 +22,17 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 var app = builder.Build();
 app.UseCors("PermitirAstro");
 
-var app = builder.Build();
-app.UseCors("PermitirAstro");
-
-// --- AGREGA ESTE BLOQUE PARA RENDER ---
+// --- AUTO-MIGRACIÓN PARA RENDER ---
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate(); // Ejecuta las migraciones automáticamente
+    dbContext.Database.Migrate();
 }
-// --------------------------------------
+// ----------------------------------
+
 // ==============================================================================
 // 3. ENDPOINTS
 // ==============================================================================
-
 app.MapGet("/api/productos", async (AppDbContext db) =>
 {
     var productos = await db.Productos.ToListAsync();
@@ -45,7 +42,7 @@ app.MapGet("/api/productos", async (AppDbContext db) =>
 app.MapPost("/api/scrape", async (AppDbContext db) =>
 {
     string url = "https://www.pcel.com/laptops/HP-AJ1X0ATCUSTOM16512-Laptop-HP-255-G10-Procesador-AMD-Ryzen-5-7530U-hasta-4-5-GHz-Memoria-de-16GB-DDR4-SSD-de-512GB-Pantalla-de-15-6-LED-Video-Radeon-Graphics-S-O-Window-542792"; 
-    
+
     using HttpClient client = new HttpClient();
     client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
 
@@ -55,15 +52,12 @@ app.MapPost("/api/scrape", async (AppDbContext db) =>
         HtmlDocument document = new HtmlDocument();
         document.LoadHtml(html);
 
-        // Extraer el Nombre con tu XPath del h3
         var titleNode = document.DocumentNode.SelectSingleNode("/html/body/div[2]/div[2]/div[2]/div/div[1]/div/div/h3");
-// Reemplaza los saltos de línea por un espacio en blanco
-string nombreExtraido = titleNode != null 
-    ? titleNode.InnerText.Replace("\r", "").Replace("\n", " ").Trim() 
-    : "Producto Desconocido";
-        // Extraer el Precio con tu XPath del strong
+        string nombreExtraido = titleNode != null 
+            ? titleNode.InnerText.Replace("\r", "").Replace("\n", " ").Trim() 
+            : "Producto Desconocido";
+
         var priceNode = document.DocumentNode.SelectSingleNode("/html/body/div[2]/div[2]/div[2]/div/div[4]/div[2]/div/div/div[1]/div[1]/strong"); 
-        
         string precioExtraido = "Precio no encontrado";
         if (priceNode != null)
         {
@@ -89,7 +83,6 @@ string nombreExtraido = titleNode != null
 });
 
 app.Run();
-
 
 // ==============================================================================
 // 4. MODELOS DE DATOS
