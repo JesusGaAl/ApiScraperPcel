@@ -22,7 +22,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 var app = builder.Build();
 app.UseCors("PermitirAstro");
 
+var app = builder.Build();
+app.UseCors("PermitirAstro");
 
+// --- AGREGA ESTE BLOQUE PARA RENDER ---
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate(); // Ejecuta las migraciones automáticamente
+}
+// --------------------------------------
 // ==============================================================================
 // 3. ENDPOINTS
 // ==============================================================================
