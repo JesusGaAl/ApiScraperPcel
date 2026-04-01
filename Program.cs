@@ -3,7 +3,7 @@ using HtmlAgilityPack;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. CONFIGURACIÓN DE CORS (Para que Astro pueda conectarse después)
+// 1. CONFIGURACIÓN DE CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("PermitirAstro", policy =>
@@ -14,7 +14,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 2. CONFIGURACIÓN DE LA BASE DE DATOS (PostgreSQL)
+// 2. CONFIGURACIÓN DE LA BASE DE DATOS
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "";
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
@@ -24,17 +24,15 @@ app.UseCors("PermitirAstro");
 
 
 // ==============================================================================
-// 3. ENDPOINTS (Tus rutas de la API)
+// 3. ENDPOINTS
 // ==============================================================================
 
-// Endpoint GET: Tu portafolio en Astro llamará a esta ruta para leer los datos
 app.MapGet("/api/productos", async (AppDbContext db) =>
 {
     var productos = await db.Productos.ToListAsync();
     return Results.Ok(productos);
 });
 
-// Endpoint POST: Ejecuta el Scraper y guarda en PostgreSQL
 app.MapPost("/api/scrape", async (AppDbContext db) =>
 {
     string url = "https://www.pcel.com/laptops/HP-AJ1X0ATCUSTOM16512-Laptop-HP-255-G10-Procesador-AMD-Ryzen-5-7530U-hasta-4-5-GHz-Memoria-de-16GB-DDR4-SSD-de-512GB-Pantalla-de-15-6-LED-Video-Radeon-Graphics-S-O-Window-542792"; 
@@ -48,21 +46,21 @@ app.MapPost("/api/scrape", async (AppDbContext db) =>
         HtmlDocument document = new HtmlDocument();
         document.LoadHtml(html);
 
-        // Extraer el Nombre (h1)
-// Extraer el Nombre (h1 o h3) con TU XPATH
+        // Extraer el Nombre con tu XPath del h3
         var titleNode = document.DocumentNode.SelectSingleNode("/html/body/div[2]/div[2]/div[2]/div/div[1]/div/div/h3");
-        string nombreExtraido = titleNode != null ? titleNode.InnerText.Trim() : "Producto Desconocido";        string nombreExtraido = titleNode != null ? titleNode.InnerText.Trim() : "Producto Desconocido";
-
-        // Extraer el Precio con TU XPATH
-var priceNode = document.DocumentNode.SelectSingleNode("/html/body/div[2]/div[2]/div[2]/div/div[4]/div[2]/div/div/div[1]/div[1]/strong");        
+// Reemplaza los saltos de línea por un espacio en blanco
+string nombreExtraido = titleNode != null 
+    ? titleNode.InnerText.Replace("\r", "").Replace("\n", " ").Trim() 
+    : "Producto Desconocido";
+        // Extraer el Precio con tu XPath del strong
+        var priceNode = document.DocumentNode.SelectSingleNode("/html/body/div[2]/div[2]/div[2]/div/div[4]/div[2]/div/div/div[1]/div[1]/strong"); 
+        
         string precioExtraido = "Precio no encontrado";
         if (priceNode != null)
         {
-            // Limpiamos la cadena por si trae espacios vacíos o saltos de línea (ej. \n o \r)
             precioExtraido = priceNode.InnerText.Replace("\n", "").Replace("\r", "").Trim();
         }
 
-        // Crear el objeto y guardarlo en la base de datos local
         var nuevoProducto = new Producto 
         { 
             Nombre = nombreExtraido, 
@@ -83,8 +81,9 @@ var priceNode = document.DocumentNode.SelectSingleNode("/html/body/div[2]/div[2]
 
 app.Run();
 
+
 // ==============================================================================
-// 4. MODELOS DE DATOS (Tu tabla y su estructura)
+// 4. MODELOS DE DATOS
 // ==============================================================================
 class Producto
 {
